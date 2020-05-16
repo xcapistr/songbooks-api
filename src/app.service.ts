@@ -92,4 +92,53 @@ export class AppService {
       return newBooks[0]
     })
   }
+
+  async createSong(createSongDTO: any) {
+    return await this.knex.transaction(async trx => {
+      // search for artist id
+      const artists: Array<any> = await this.knex('artists').where(
+        'name',
+        createSongDTO.artistName
+      )
+
+      // create artist if doesn't exist
+      let artistId
+      if (artists.length) {
+        artistId = artists[0].id
+      } else {
+        artistId = (
+          await this.knex('artists')
+            .insert({ name: createSongDTO.artistName }, 'id')
+            .transacting(trx)
+        )[0]
+      }
+
+      // insert song
+      const newSongs = await this.knex('songs')
+        .insert(
+          {
+            name: createSongDTO.name,
+            text: createSongDTO.text,
+            artist_id: artistId,
+            owner_id: createSongDTO.ownerId,
+            private: createSongDTO.private,
+            stars: 0,
+            votes: 0
+          },
+          '*'
+        )
+        .transacting(trx)
+
+      // insert books-songs relation
+      await this.knex('books_songs')
+        .insert({
+          book_id: createSongDTO.bookId,
+          song_id: newSongs[0].id
+        })
+        .transacting(trx)
+      console.log('New song has been created with ID:', newSongs[0].id)
+
+      return newSongs[0]
+    })
+  }
 }
