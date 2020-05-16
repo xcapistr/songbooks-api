@@ -1,13 +1,13 @@
-import { Injectable, Inject } from '@nestjs/common';
-import * as Knex from 'knex';
+import { Injectable, Inject } from '@nestjs/common'
+import * as Knex from 'knex'
 
 @Injectable()
 export class AppService {
   @Inject('DbConnection')
-  knex: Knex;
+  knex: Knex
 
   getHello(): string {
-    return 'OH MY CHORD!!!';
+    return 'OH MY CHORD!!!'
   }
 
   async getSearchResult(query: string): Promise<any> {
@@ -30,12 +30,12 @@ export class AppService {
         FROM artists
         LEFT JOIN songs ON (artists.id = songs.artist_id)
         WHERE LOWER(artists.name) LIKE LOWER('${query}%') OR LOWER(artists.name) LIKE LOWER('% ${query}%')
-        GROUP BY artists.id;`),
-    ]);
+        GROUP BY artists.id;`)
+    ])
     return {
       songs: results[0].rows,
       books: results[1].rows,
-      artists: results[2].rows,
-    };
+      artists: results[2].rows
+    }
   }
 }
