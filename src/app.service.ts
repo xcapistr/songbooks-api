@@ -41,9 +41,9 @@ export class AppService {
 
   async getBookSongs(book: number) {
     return (
-      await this.knex.raw(`SELECT songbooks.songs.*
-      FROM songbooks.songs
-      JOIN songbooks.books_songs ON (songs.id = books_songs.song_id)
+      await this.knex.raw(`SELECT songs.*
+      FROM songs
+      JOIN books_songs ON (songs.id = books_songs.song_id)
       WHERE books_songs.book_id = ${book}`)
     ).rows
   }
