@@ -96,9 +96,8 @@ export class AppService {
   async createSong(createSongDTO: any) {
     return await this.knex.transaction(async trx => {
       // search for artist id
-      const artists: Array<any> = await this.knex('artists').where(
-        'name',
-        createSongDTO.artistName
+      const artists: Array<any> = await this.knex('artists').whereRaw(
+        `LOWER(name) = '${createSongDTO.artistName.toLowerCase()}'`
       )
 
       // create artist if doesn't exist
