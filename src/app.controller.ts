@@ -1,4 +1,4 @@
-import { Controller, Get } from '@nestjs/common';
+import { Controller, Get, Query } from '@nestjs/common';
 import { AppService } from './app.service';
 
 @Controller()
@@ -10,8 +10,8 @@ export class AppController {
     return this.appService.getHello();
   }
 
-  @Get('/books')
-  async getBooks(): Promise<any> {
-    return await this.appService.getBooks();
+  @Get('/browse')
+  async getData(@Query('query') query: string): Promise<any> {
+    return await this.appService.getSearchResult(query);
   }
 }
