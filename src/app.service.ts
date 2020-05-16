@@ -65,4 +65,31 @@ export class AppService {
       GROUP BY books.id, users.id`)
     ).rows
   }
+
+  async createBook(book: any) {
+    return await this.knex.transaction(async trx => {
+      const newBooks = await this.knex('books')
+        .insert(
+          {
+            name: book.name,
+            image: book.image,
+            owner_id: book.ownerId,
+            private: book.private,
+            stars: 0,
+            votes: 0
+          },
+          '*'
+        )
+        .transacting(trx)
+
+      await this.knex('users_books')
+        .insert({
+          user_id: book.ownerId,
+          book_id: newBooks[0].id
+        })
+        .transacting(trx)
+      console.log('New book has been created with ID:', newBooks[0].id)
+      return newBooks[0]
+    })
+  }
 }

@@ -1,4 +1,4 @@
-import { Controller, Get, Query, Param } from '@nestjs/common'
+import { Controller, Get, Query, Param, Body, HttpCode, Post } from '@nestjs/common'
 import { AppService } from './app.service'
 
 @Controller()
@@ -29,4 +29,12 @@ export class AppController {
   async getUserBooks(@Param('id') user: number): Promise<any> {
     return await this.appService.getUserBooks(user)
   }
+
+  @Post('/books')
+  @HttpCode(201)
+  async createBook(@Body() bookDto: any): Promise<any> {
+    return await this.appService.createBook(bookDto)
+  }
+
+  // TODO: create song
 }
