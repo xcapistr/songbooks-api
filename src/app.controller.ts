@@ -24,4 +24,9 @@ export class AppController {
   async getArtistSongs(@Param('id') artist: number): Promise<any> {
     return await this.appService.getArtistSongs(artist)
   }
+
+  @Get('/users/:id/books')
+  async getUserBooks(@Param('id') user: number): Promise<any> {
+    return await this.appService.getUserBooks(user)
+  }
 }

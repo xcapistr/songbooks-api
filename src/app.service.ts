@@ -51,4 +51,18 @@ export class AppService {
   async getArtistSongs(artist: number) {
     return this.knex('songs').where('artist_id', artist)
   }
+
+  async getUserBooks(user: number) {
+    return (
+      await this.knex.raw(`SELECT books.*,
+        users.username AS owner_name,
+        COUNT(books_songs.song_id) AS songs_count
+      FROM books
+      JOIN users ON (books.owner_id = users.id)
+      LEFT JOIN books_songs ON (books.id = books_songs.book_id)
+      JOIN users_books ON (books.id = users_books.book_id)
+      WHERE users_books.user_id = ${user}
+      GROUP BY books.id, users.id`)
+    ).rows
+  }
 }
