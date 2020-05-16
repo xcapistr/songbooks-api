@@ -38,4 +38,17 @@ export class AppService {
       artists: results[2].rows
     }
   }
+
+  async getBookSongs(book: number) {
+    return (
+      await this.knex.raw(`SELECT songbooks.songs.*
+      FROM songbooks.songs
+      JOIN songbooks.books_songs ON (songs.id = books_songs.song_id)
+      WHERE books_songs.book_id = ${book}`)
+    ).rows
+  }
+
+  async getArtistSongs(artist: number) {
+    return this.knex('songs').where('artist_id', artist)
+  }
 }
