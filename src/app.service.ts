@@ -13,22 +13,22 @@ export class AppService {
   async getSearchResult(query: string): Promise<any> {
     const results: Array<any> = await Promise.all([
       this.knex
-        .raw(`SELECT songs.*, artists.name as artist_name, users.username as owner_name
+        .raw(`SELECT songs.*, artists.name as "artistName", users.username as "ownerName"
         FROM songs
-        JOIN artists ON (songs.artist_id = artists.id)
-        JOIN users ON (songs.owner_id = users.id)
+        JOIN artists ON (songs.artist = artists.id)
+        JOIN users ON (songs.owner = users.id)
         WHERE LOWER(songs.name) LIKE LOWER('${query}%') OR LOWER(songs.name) LIKE LOWER('% ${query}%')`),
       this.knex.raw(`SELECT books.*, 
-          COUNT(books_songs.song_id) AS songs_count, 
-          users.username AS owner_name
+          COUNT(books_songs.song_id) AS "songsCount", 
+          users.username AS "ownerName"
         FROM books 
         LEFT JOIN books_songs ON (books_songs.book_id = books.id)
-        LEFT JOIN users ON (books.owner_id = users.id)
+        LEFT JOIN users ON (books.owner = users.id)
         WHERE LOWER(name) LIKE LOWER('${query}%') OR LOWER(name) LIKE LOWER('% ${query}%')
         GROUP BY books.id, users.id;`),
-      this.knex.raw(`SELECT artists.*, COUNT(songs.id) as songs_count
+      this.knex.raw(`SELECT artists.*, COUNT(songs.id) as "songsCount"
         FROM artists
-        LEFT JOIN songs ON (artists.id = songs.artist_id)
+        LEFT JOIN songs ON (artists.id = songs.artist)
         WHERE LOWER(artists.name) LIKE LOWER('${query}%') OR LOWER(artists.name) LIKE LOWER('% ${query}%')
         GROUP BY artists.id;`)
     ])
@@ -49,16 +49,16 @@ export class AppService {
   }
 
   async getArtistSongs(artist: number) {
-    return this.knex('songs').where('artist_id', artist)
+    return this.knex('songs').where('artist', artist)
   }
 
   async getUserBooks(user: number) {
     return (
       await this.knex.raw(`SELECT books.*,
-        users.username AS owner_name,
-        COUNT(books_songs.song_id) AS songs_count
+        users.username AS "ownerName",
+        COUNT(books_songs.song_id) AS "songsCount"
       FROM books
-      JOIN users ON (books.owner_id = users.id)
+      JOIN users ON (books.owner = users.id)
       LEFT JOIN books_songs ON (books.id = books_songs.book_id)
       JOIN users_books ON (books.id = users_books.book_id)
       WHERE users_books.user_id = ${user}
@@ -73,7 +73,7 @@ export class AppService {
           {
             name: book.name,
             image: book.image,
-            owner_id: book.ownerId,
+            owner: book.owner,
             private: book.private,
             stars: 0,
             votes: 0
@@ -84,7 +84,7 @@ export class AppService {
 
       await this.knex('users_books')
         .insert({
-          user_id: book.ownerId,
+          user_id: book.owner,
           book_id: newBooks[0].id
         })
         .transacting(trx)
@@ -118,8 +118,8 @@ export class AppService {
           {
             name: createSongDTO.name,
             text: createSongDTO.text,
-            artist_id: artistId,
-            owner_id: createSongDTO.ownerId,
+            artist: artistId,
+            owner: createSongDTO.owner,
             private: createSongDTO.private,
             stars: 0,
             votes: 0
