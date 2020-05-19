@@ -41,15 +41,27 @@ export class AppService {
 
   async getBookSongs(book: number) {
     return (
-      await this.knex.raw(`SELECT songs.*
+      await this.knex.raw(`SELECT songs.*,
+        artists.name AS "artistName",
+        users.username AS "ownerName"
       FROM songs
       JOIN books_songs ON (songs.id = books_songs.song_id)
+      JOIN users ON (songs.owner = users.id)
+      JOIN artists ON (songs.artist = artists.id)
       WHERE books_songs.book_id = ${book}`)
     ).rows
   }
 
   async getArtistSongs(artist: number) {
-    return this.knex('songs').where('artist', artist)
+    return (
+      await this.knex.raw(`SELECT songs.*,
+        artists.name AS "artistName",
+        users.username AS "ownerName"
+      FROM songs
+      JOIN users ON (songs.owner = users.id)
+      JOIN artists ON (songs.artist = artists.id)
+      WHERE songs.artist = ${artist}`)
+    ).rows
   }
 
   async getUserBooks(user: number) {
