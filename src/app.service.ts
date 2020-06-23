@@ -152,4 +152,22 @@ export class AppService {
       return newSongs[0]
     })
   }
+
+  async getUserSongBooks(userId: number, songId: number) {
+    return (
+      await this.knex.raw(`SELECT books.id, 
+        books.name, 
+        CASE 
+          WHEN books_songs_filtered.book_id IS NULL
+          THEN false
+          ELSE true
+        END AS includes_song
+      FROM songbooks.users_books
+      JOIN songbooks.books ON (songbooks.users_books.book_id = songbooks.books.id)
+      LEFT JOIN (
+        SELECT * FROM songbooks.books_songs WHERE song_id = ${songId}
+      ) AS books_songs_filtered ON (songbooks.books.id = books_songs_filtered.book_id)
+      WHERE user_id = ${userId}`)
+    ).rows
+  }
 }
