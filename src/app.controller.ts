@@ -19,18 +19,18 @@ export class AppController {
   }
 
   @Get('/browse')
-  async getData(@Query('query') query: string): Promise<any> {
-    return await this.appService.getSearchResult(query)
+  async getData(@Query('query') query: string, @Query('user_id') userId: number): Promise<any> {
+    return await this.appService.getSearchResult(query, userId)
   }
 
   @Get('/books/:id/songs')
-  async getBookSongs(@Param('id') book: number): Promise<any> {
-    return await this.appService.getBookSongs(book)
+  async getBookSongs(@Param('id') bookId: number, @Query('user_id') userId: number): Promise<any> {
+    return await this.appService.getBookSongs(bookId, userId)
   }
 
   @Get('/artists/:id/songs')
-  async getArtistSongs(@Param('id') artist: number): Promise<any> {
-    return await this.appService.getArtistSongs(artist)
+  async getArtistSongs(@Param('id') artistId: number, @Query('user_id') userId: number): Promise<any> {
+    return await this.appService.getArtistSongs(artistId, userId)
   }
 
   @Get('/users/:id/books')
