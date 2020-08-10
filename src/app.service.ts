@@ -219,4 +219,76 @@ export class AppService {
       `)
     ).rows
   }
+
+  async changeBooksSongs(booksSongsDTO) {
+    return await this.knex.transaction(async trx => {
+      let response = []
+      for (const item of booksSongsDTO) {
+        if (item.action === 'insert') {
+          const exists =
+            (
+              await this.knex('books_songs')
+                .where({
+                  book_id: item.book_id,
+                  song_id: item.song_id
+                })
+                .returning('*')
+                .transacting(trx)
+            ).length > 0
+
+          console.log(item.book_id, item.song_id, exists)
+
+          if (!exists) {
+            const insertedItems = await this.knex('books_songs')
+              .insert({
+                book_id: item.book_id,
+                song_id: item.song_id
+              })
+              .returning('*')
+              .transacting(trx)
+
+            response.push({
+              ...insertedItems[0],
+              action: 'insert'
+            })
+          }
+        } else if (item.action === 'delete') {
+          const deletedItems = await this.knex('books_songs')
+            .where({
+              book_id: item.book_id,
+              song_id: item.song_id
+            })
+            .del()
+            .returning('*')
+            .transacting(trx)
+
+          deletedItems.length &&
+            response.push({
+              ...deletedItems[0],
+              action: 'delete'
+            })
+        }
+      }
+      return response
+    })
+  }
+
+  // async addSongToBook(bookId: number, songId: number) {
+  //   return await this.knex('books_songs')
+  //     .insert({
+  //       book_id,
+  //       song_id
+  //     })
+  //     .returning('*')
+  // }
+
+  // async removeSongFromBook(bookId: number, songId: number) {
+  //   return await this.knex('books_songs')
+  //     .where({
+  //       book_id,
+  //       song_id
+  //     })
+  //     .del()
+  //     .returning('*')
+  // }
 }

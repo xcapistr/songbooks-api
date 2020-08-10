@@ -19,17 +19,26 @@ export class AppController {
   }
 
   @Get('/browse')
-  async getData(@Query('query') query: string, @Query('user_id') userId: number): Promise<any> {
+  async getData(
+    @Query('query') query: string,
+    @Query('user_id') userId: number
+  ): Promise<any> {
     return await this.appService.getSearchResult(query, userId)
   }
 
   @Get('/books/:id/songs')
-  async getBookSongs(@Param('id') bookId: number, @Query('user_id') userId: number): Promise<any> {
+  async getBookSongs(
+    @Param('id') bookId: number,
+    @Query('user_id') userId: number
+  ): Promise<any> {
     return await this.appService.getBookSongs(bookId, userId)
   }
 
   @Get('/artists/:id/songs')
-  async getArtistSongs(@Param('id') artistId: number, @Query('user_id') userId: number): Promise<any> {
+  async getArtistSongs(
+    @Param('id') artistId: number,
+    @Query('user_id') userId: number
+  ): Promise<any> {
     return await this.appService.getArtistSongs(artistId, userId)
   }
 
@@ -48,19 +57,30 @@ export class AppController {
 
   @Post('/books')
   @HttpCode(201)
-  async createBook(@Body() bookDto: any): Promise<any> {
-    return await this.appService.createBook(bookDto)
+  async createBook(@Body() bookDTO: any): Promise<any> {
+    return await this.appService.createBook(bookDTO)
   }
 
   @Post('/songs')
   @HttpCode(201)
-  async createSong(@Body() createSongDto: any): Promise<any> {
-    return await this.appService.createSong(createSongDto)
+  async createSong(@Body() createSongDTO: any): Promise<any> {
+    return await this.appService.createSong(createSongDTO)
   }
 
-  // TODO: import song to user's books
-  // @Put('/users/:user_id/songs/:song_id/books')
-  // async setUserSongBooks(@Param('user_id') user: number, @Param('song_id') song: number, @Body() userSongBooks: any): Promise<any> {
-  //   return await this.appService.setUserSongBooks(user, song, userSongBooks)
+  @Post('/books_songs')
+  @HttpCode(200)
+  async changeBooksSongs(@Body() changeBooksSongsDTO: any): Promise<any> {
+    return await this.appService.changeBooksSongs(changeBooksSongsDTO)
+  }
+
+  // @Post('/books/:book_id/songs/:song_id')
+  // @HttpCode(201)
+  // async addSongToBook(@Param('book_id') bookId: number, @Param('song_id') songId: number) : Promise<any> {
+  //   return await this.appService.addSongToBook(bookId, songId)
+  // }
+
+  // @Delete('/books/:book_id/songs/:song_id')
+  // async removeSongFromBook(@Param('book_id') bookId: number, @Param('song_id') songId: number) : Promise<any> {
+  //   return await this.appService.removeSongFromBook(bookId, songId)
   // }
 }
