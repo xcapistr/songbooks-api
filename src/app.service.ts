@@ -112,14 +112,19 @@ export class AppService {
   async getUserBooks(user: number) {
     return (
       await this.knex.raw(`
-        SELECT books.*,
+        SELECT DISTINCT(books.id),
+          books.name,
+          books.image,
+          books.private,
+          books.stars,
+          books.votes,
           users.username AS "ownerName",
           COUNT(books_songs.song_id) AS "songsCount"
         FROM books
         JOIN users ON (books.owner = users.id)
         LEFT JOIN books_songs ON (books.id = books_songs.book_id)
-        JOIN users_books ON (books.id = users_books.book_id)
-        WHERE users_books.user_id = ${user}
+        LEFT JOIN users_books ON (books.id = users_books.book_id)
+        WHERE users_books.user_id = ${user} OR books.owner = ${user}
         GROUP BY books.id, users.id
       `)
     ).rows
