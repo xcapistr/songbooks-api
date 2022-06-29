@@ -26,6 +26,27 @@ export class AppController {
     return await this.appService.getSearchResult(query, userId)
   }
 
+  @Get('/songs/:id')
+  async getSong(
+    @Param('id') id: number,
+  ): Promise<any> {
+    return await this.appService.getSong(id)
+  }
+
+  @Get('/artists/:id')
+  async getArtist(
+    @Param('id') id: number,
+  ): Promise<any> {
+    return await this.appService.getArtist(id)
+  }
+
+  @Get('/books/:id')
+  async getBook(
+    @Param('id') id: number,
+  ): Promise<any> {
+    return await this.appService.getBook(id)
+  }
+
   @Get('/books/:id/songs')
   async getBookSongs(
     @Param('id') bookId: number,

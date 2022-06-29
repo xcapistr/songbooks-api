@@ -62,6 +62,56 @@ export class AppService {
     }
   }
 
+  async getSong(id: number) {
+    return (
+      await this.knex.raw(`
+      SELECT songs.* , artists.name AS "artistName", users.username AS "ownerName" 
+      FROM songs
+      JOIN artists ON (artists.id = songs.artist)
+      JOIN users ON (users.id = songs.owner)
+      WHERE songs.id = ${id}
+    `)
+    ).rows[0]
+  }
+
+  async getArtist(id: number) {
+    const results: Array<any> = await Promise.all([
+      this.knex('artists')
+        .where({
+          id: id
+        })
+        .first(),
+      this.knex.raw(`
+        SELECT songs.*, users.username AS "ownerName"
+        FROM songs
+        JOIN users ON (users.id = songs.owner)
+        WHERE songs.artist = ${id}
+      `)
+    ])
+
+    return { ...results[0], songs: results[1].rows}
+  }
+
+  async getBook(id: number) {
+    const results: Array<any> = await Promise.all([
+      this.knex.raw(`
+          SELECT books.*, users.username AS "ownerName"
+          FROM books
+          JOIN users ON (users.id = books.owner)
+          WHERE books.id = ${id}
+        `),
+      this.knex.raw(`
+        SELECT songs.*, users.username AS "ownerName", artists.name AS "artistName"
+        FROM songs
+        JOIN books_songs ON (books_songs.song_id = songs.id)
+        JOIN users ON (users.id = songs.owner)
+        JOIN artists ON (artists.id = songs.artist)
+        WHERE books_songs.book_id = ${id}
+      `)
+    ])
+    return { ...results[0].rows[0], songs: results[1].rows}
+  }
+
   async getBookSongs(bookId: number, userId: number) {
     return (
       await this.knex.raw(`
