@@ -171,13 +171,36 @@ export class AppService {
           users.username AS "ownerName",
           COUNT(books_songs.song_id) AS "songsCount"
         FROM books
-        JOIN users ON (books.owner = users.id)
-        LEFT JOIN books_songs ON (books.id = books_songs.book_id)
-        LEFT JOIN users_books ON (books.id = users_books.book_id)
+          JOIN users ON (books.owner = users.id)
+          LEFT JOIN books_songs ON (books.id = books_songs.book_id)
+          LEFT JOIN users_books ON (books.id = users_books.book_id)
         WHERE users_books.user_id = ${user} OR books.owner = ${user}
         GROUP BY books.id, users.id
       `)
     ).rows
+  }
+
+  async getUserSongs(userId: number) {
+    return (await this.knex.raw(`
+      SELECT songs.*, 
+        string_agg(books.name, ';') AS book_names, 
+        string_agg(books.name, ';') AS book_ids
+      FROM songs
+        JOIN books_songs ON books_songs.song_id = songs.id
+        JOIN books ON books.id = books_songs.book_id
+        JOIN users_books ON users_books.book_id = books.id
+      WHERE users_books.user_id = ${userId}
+      GROUP BY songs.id
+    `)).rows
+  }
+
+  async getUserArtists(userId: number) {
+    return (await this.knex.raw(`
+      SELECT *
+      FROM artists
+        JOIN users_artists ON users_artists.artist_id = artists.id
+      WHERE user_id = ${userId}
+    `)).rows
   }
 
   async createBook(book: any) {
