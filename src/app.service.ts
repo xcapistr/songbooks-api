@@ -182,15 +182,17 @@ export class AppService {
 
   async getUserSongs(userId: number) {
     return (await this.knex.raw(`
-      SELECT songs.*, 
-        string_agg(books.name, ';') AS book_names, 
-        string_agg(books.name, ';') AS book_ids
+      SELECT songs.*,
+        artists.name AS "artistName",
+        string_agg(books.name, ';') AS "bookNames", 
+        string_agg(books.name, ';') AS "bookIds"
       FROM songs
         JOIN books_songs ON books_songs.song_id = songs.id
         JOIN books ON books.id = books_songs.book_id
         JOIN users_books ON users_books.book_id = books.id
+        JOIN artists ON artists.id = songs.artist
       WHERE users_books.user_id = ${userId}
-      GROUP BY songs.id
+      GROUP BY songs.id, artists.name
     `)).rows
   }
 
