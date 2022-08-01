@@ -1,5 +1,5 @@
 import { Injectable, Inject } from '@nestjs/common'
-import * as Knex from 'knex'
+import { Knex } from 'knex'
 
 @Injectable()
 export class AppService {
@@ -53,12 +53,12 @@ export class AppService {
         LEFT JOIN songs ON (artists.id = songs.artist)
         WHERE LOWER(artists.name) LIKE LOWER('${query}%') OR LOWER(artists.name) LIKE LOWER('% ${query}%')
         GROUP BY artists.id
-      `)
+      `),
     ])
     return {
       songs: results[0].rows,
       books: results[1].rows,
-      artists: results[2].rows
+      artists: results[2].rows,
     }
   }
 
@@ -78,7 +78,7 @@ export class AppService {
     const results: Array<any> = await Promise.all([
       this.knex('artists')
         .where({
-          id: id
+          id: id,
         })
         .first(),
       this.knex.raw(`
@@ -86,10 +86,10 @@ export class AppService {
         FROM songs
         JOIN users ON (users.id = songs.owner)
         WHERE songs.artist = ${id}
-      `)
+      `),
     ])
 
-    return { ...results[0], songs: results[1].rows}
+    return { ...results[0], songs: results[1].rows }
   }
 
   async getBook(id: number) {
@@ -107,9 +107,9 @@ export class AppService {
         JOIN users ON (users.id = songs.owner)
         JOIN artists ON (artists.id = songs.artist)
         WHERE books_songs.book_id = ${id}
-      `)
+      `),
     ])
-    return { ...results[0].rows[0], songs: results[1].rows}
+    return { ...results[0].rows[0], songs: results[1].rows }
   }
 
   async getBookSongs(bookId: number, userId: number) {
@@ -181,7 +181,8 @@ export class AppService {
   }
 
   async getUserSongs(userId: number) {
-    return (await this.knex.raw(`
+    return (
+      await this.knex.raw(`
       SELECT songs.*,
         artists.name AS "artistName",
         string_agg(books.name, ';') AS "bookNames", 
@@ -193,16 +194,19 @@ export class AppService {
         JOIN artists ON artists.id = songs.artist
       WHERE users_books.user_id = ${userId}
       GROUP BY songs.id, artists.name
-    `)).rows
+    `)
+    ).rows
   }
 
   async getUserArtists(userId: number) {
-    return (await this.knex.raw(`
+    return (
+      await this.knex.raw(`
       SELECT *
       FROM artists
         JOIN users_artists ON users_artists.artist_id = artists.id
       WHERE user_id = ${userId}
-    `)).rows
+    `)
+    ).rows
   }
 
   async createBook(book: any) {
@@ -215,16 +219,16 @@ export class AppService {
             owner: book.owner,
             private: book.private,
             stars: 0,
-            votes: 0
+            votes: 0,
           },
-          '*'
+          '*',
         )
         .transacting(trx)
 
       await this.knex('users_books')
         .insert({
           user_id: book.owner,
-          book_id: newBooks[0].id
+          book_id: newBooks[0].id,
         })
         .transacting(trx)
       console.log('New book has been created with ID:', newBooks[0].id)
@@ -236,7 +240,7 @@ export class AppService {
     return await this.knex.transaction(async trx => {
       // search for artist id
       const artists: Array<any> = await this.knex('artists').whereRaw(
-        `LOWER(name) = '${createSongDTO.artistName.toLowerCase()}'`
+        `LOWER(name) = '${createSongDTO.artistName.toLowerCase()}'`,
       )
 
       // create artist if doesn't exist
@@ -261,9 +265,9 @@ export class AppService {
             owner: createSongDTO.owner,
             private: createSongDTO.private,
             stars: 0,
-            votes: 0
+            votes: 0,
           },
-          '*'
+          '*',
         )
         .transacting(trx)
 
@@ -271,7 +275,7 @@ export class AppService {
       await this.knex('books_songs')
         .insert({
           book_id: createSongDTO.bookId,
-          song_id: newSongs[0].id
+          song_id: newSongs[0].id,
         })
         .transacting(trx)
       console.log('New song has been created with ID:', newSongs[0].id)
@@ -302,7 +306,7 @@ export class AppService {
 
   async changeBooksSongs(booksSongsDTO) {
     return await this.knex.transaction(async trx => {
-      let response = []
+      const response = []
       for (const item of booksSongsDTO) {
         if (item.action === 'insert') {
           const exists =
@@ -310,7 +314,7 @@ export class AppService {
               await this.knex('books_songs')
                 .where({
                   book_id: item.book_id,
-                  song_id: item.song_id
+                  song_id: item.song_id,
                 })
                 .returning('*')
                 .transacting(trx)
@@ -322,21 +326,21 @@ export class AppService {
             const insertedItems = await this.knex('books_songs')
               .insert({
                 book_id: item.book_id,
-                song_id: item.song_id
+                song_id: item.song_id,
               })
               .returning('*')
               .transacting(trx)
 
             response.push({
               ...insertedItems[0],
-              action: 'insert'
+              action: 'insert',
             })
           }
         } else if (item.action === 'delete') {
           const deletedItems = await this.knex('books_songs')
             .where({
               book_id: item.book_id,
-              song_id: item.song_id
+              song_id: item.song_id,
             })
             .del()
             .returning('*')
@@ -345,7 +349,7 @@ export class AppService {
           deletedItems.length &&
             response.push({
               ...deletedItems[0],
-              action: 'delete'
+              action: 'delete',
             })
         }
       }

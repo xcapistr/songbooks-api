@@ -1,4 +1,4 @@
-import * as knex from 'knex'
+import knex from 'knex'
 import knexConfig from '../knexfile'
 
 export const dbProvider = {
@@ -9,5 +9,5 @@ export const dbProvider = {
       throw new Error(e)
     })
     return connection
-  }
+  },
 }

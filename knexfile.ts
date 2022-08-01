@@ -1,4 +1,4 @@
-require('dotenv').config()
+import 'dotenv/config'
 
 const connectionSettings = process.env.DATABASE_URL
 
@@ -11,6 +11,6 @@ export default {
   pool: {
     min: 2,
     max: 10,
-    idleTimeoutMillis: 500
-  }
+    idleTimeoutMillis: 500,
+  },
 }

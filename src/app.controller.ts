@@ -5,7 +5,7 @@ import {
   Param,
   Body,
   HttpCode,
-  Post
+  Post,
 } from '@nestjs/common'
 import { AppService } from './app.service'
 
@@ -21,36 +21,30 @@ export class AppController {
   @Get('/browse')
   async getData(
     @Query('query') query: string,
-    @Query('user_id') userId: number
+    @Query('user_id') userId: number,
   ): Promise<any> {
     return await this.appService.getSearchResult(query, userId)
   }
 
   @Get('/songs/:id')
-  async getSong(
-    @Param('id') id: number,
-  ): Promise<any> {
+  async getSong(@Param('id') id: number): Promise<any> {
     return await this.appService.getSong(id)
   }
 
   @Get('/artists/:id')
-  async getArtist(
-    @Param('id') id: number,
-  ): Promise<any> {
+  async getArtist(@Param('id') id: number): Promise<any> {
     return await this.appService.getArtist(id)
   }
 
   @Get('/books/:id')
-  async getBook(
-    @Param('id') id: number,
-  ): Promise<any> {
+  async getBook(@Param('id') id: number): Promise<any> {
     return await this.appService.getBook(id)
   }
 
   @Get('/books/:id/songs')
   async getBookSongs(
     @Param('id') bookId: number,
-    @Query('user_id') userId: number
+    @Query('user_id') userId: number,
   ): Promise<any> {
     return await this.appService.getBookSongs(bookId, userId)
   }
@@ -58,7 +52,7 @@ export class AppController {
   @Get('/artists/:id/songs')
   async getArtistSongs(
     @Param('id') artistId: number,
-    @Query('user_id') userId: number
+    @Query('user_id') userId: number,
   ): Promise<any> {
     return await this.appService.getArtistSongs(artistId, userId)
   }
@@ -81,7 +75,7 @@ export class AppController {
   @Get('/users/:user_id/songs/:song_id/books')
   async getUserSongBooks(
     @Param('user_id') user: number,
-    @Param('song_id') song: number
+    @Param('song_id') song: number,
   ): Promise<any> {
     return await this.appService.getUserSongBooks(user, song)
   }
